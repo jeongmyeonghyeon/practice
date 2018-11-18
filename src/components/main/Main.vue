@@ -1,66 +1,109 @@
 <template>
-  <div class="main-container">
+  <div class="container">
 
-    <div class="main-header-container">
-      <div class="main-header-wrapper">
-        <div class="filter-button" @click="filterModalOpen">필터</div>
-        <div class="ordering-warpper">
+    <div class="row">
+      <div class="header col-md-12">
+        <div class="col-md-2">
+          <div class="filter-button" @click="filterModalOpen">필&nbsp;&nbsp;터</div>
+        </div>
+        <div class="col-md-8"></div>
+        <div class="col-md-2">
           <div class="ordering-item"
                :class="{'selected': curOrder === order.id }"
                v-for="(order, idx) in orders" :key="'order-'+idx"
-               @click="ordering(order.id)">{{order.name}}</div>
+               @click="ordering(order.id)"><span :class="{'under-line': curOrder === order.id }">{{order.name}}</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="main-content-container">
-      <div class="main-content-wrapper">
-        <div class="main-content-item"
-          v-for="(card, idx) in cards" :key="'card-'+idx">
-          <div class="main-content-item-header">
-            <div class="category_no">{{category(card.category_no)}}</div>
-            <div class="no">{{ card.no }}</div>
+      <div class="contents col-md-12"
+           v-for="(card, idx) in cards" :key="'card-'+idx">
+        <div class="content col-md-12">
+          <div class="content-category-wrapper col-md-12">
+            <div class="category col-md-1">{{category(card.category_no)}}</div>
+            <div class="col-md-10"></div>
+            <div class="card-no col-md-1">{{ card.no }}</div>
           </div>
-          <div class="main-content-item-body">
-            <div class="main-content-item-body-top">
+          <div class="content-info-wrapper col-md-12">
+            <div class="col-md-8"></div>
+            <div class="col-md-2">
               <div class="email">{{ card.email }}</div>
-              <div style="padding: 0px 8px;font-size: 14px;">|</div>
-              <div class="updated_at">{{ card.updated_at }}</div>
             </div>
-            <div class="main-content-item-body-bottom">
-              <div class="title">{{ card.title }}</div>
-              <div class="contents">{{ card.contents }}</div>
+            <div class="col-md-2">
+              <div class="date">{{ card.updated_at }}</div>
             </div>
           </div>
-          <!-- 광고 4번째 인덱스마다 광고컨텐츠 1개 넣기-->
-          <div v-if="ads && idx !== 0 && (idx+1) % 4 === 0">
-            <span>Sponcered</span>
-            <img :src="'http://comento.cafe24.com/public/images/' + ads[adIdx(idx)].img" alt="">
-            <div>광고제목 {{ ads[adIdx(idx)].title }}</div>
-            <div>광고내용 {{ ads[adIdx(idx)].contents }}</div>
-            <div style="height: 100px;"></div>
+          <div class="inner-content-wrapper col-md-12">
+            <div class="content-title col-md-12">
+              <div>{{ card.title }}</div>
+            </div>
+            <div class="content-content col-md-12">
+              <div>{{ card.contents }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ad col-md-12"
+             v-if="(idx+1) % 4 === 0 && ads[adIdx(idx)] !== undefined">
+          <div class="col-md-12">
+            <div class="sponcered"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+              Sponcered
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="adImage col-md-4">
+              <div :style="{
+                      backgroundImage: 'url(\'' + 'http://comento.cafe24.com/public/images/'+ ads[adIdx(idx)].img + '\')',
+                      width: '100%',
+                      height: '200px',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      marginBottom: '15px',
+                      opacity: '0.9'
+          }"></div>
+            </div>
+            <div class="ad-content-wrapper col-md-8">
+              <div class="ad-title col-md-12">
+                <div>{{ ads[adIdx(idx)].title }}</div>
+              </div>
+              <div class="ad-content col-md-12">
+                <div>{{ ads[adIdx(idx)].contents }}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <sweet-modal ref="modal" title="필터">
-      <div v-for="(filter,idx) in filters" :key="'filter-'+idx">
-        <input type="checkbox" :id="filter.name" :value="filter.no" v-model="filterList">
-        <label :for="filter.name">{{filter.name}}</label>
-      </div>
-      <div slot="button" @click="saveFilter">저장</div>
-    </sweet-modal>
+      <sweet-modal ref="modal">
+        <div class="modal-title col-md-12">필터</div>
+        <div class="modal-contents col-md-12">
+          <div class="checkbox col-md-4"
+               v-for="(filter,idx) in filters" :key="'filter-'+idx">
+            <label :for=filter.name>
+            <input type="checkbox"
+                   :id="filter.name"
+                   :value="filter.no"
+                   v-model="filterList">
+            {{filter.name}}
+            </label>
+          </div>
+        </div>
+        <div class="col-md-9"></div>
+        <div class="col-md-3">
+          <div class="modal-button" @click="saveFilter">저장</div>
+        </div>
+      </sweet-modal>
+    </div>
   </div>
 </template>
 
 <script>
-  import {SweetModal} from 'sweet-modal-vue/src/plugin.js'
+  import {SweetModal} from 'sweet-modal-vue'
 
   export default {
     name: "Main",
     components: [
-      SweetModal
+      SweetModal,
     ],
     data() {
       return {
@@ -92,11 +135,10 @@
       $(window).scroll(function (e) {
         vm.infiniteScroll($(this).scrollTop() + $(this).innerHeight(), vm.$root.$el.scrollHeight);
       });
-
     },
 
     watch: {
-      'cards'(n){
+      'cards'(n) {
         this.ordering(this.curOrder);
       }
     },
@@ -110,14 +152,14 @@
       },
 
       getFilters() {
-        if(this.$store.getters.filter !== 0) this.filterList = this.$store.getters.filter;
+        if (this.$store.getters.filter !== 0) this.filterList = this.$store.getters.filter;
 
         console.log('this.filterList', this.filterList);
 
         this.axios.get('http://comento.cafe24.com/category.php')
           .then(
             (response) => {
-              console.log(response.data);
+              // console.log(response.data);
               this.filters = response.data.list;
             }
           ).catch(
@@ -131,7 +173,7 @@
           this.axios.get(`http://comento.cafe24.com/request.php?page=${this.page}&ord=asc`)
             .then(
               (response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 this.cards.push.apply(this.cards, response.data.list);
               }
             ).catch(
@@ -145,8 +187,8 @@
             this.axios.get(`http://comento.cafe24.com/request.php?page=${this.page}&ord=asc&category=${this.filterList[i]}`)
               .then(
                 (response) => {
-                  console.log(response.data);
-                  if(response.data.list.length !== 0) {
+                  // console.log(response.data);
+                  if (response.data.list.length !== 0) {
                     this.cards.push.apply(this.cards, response.data.list);
                     this.noMoreCard = true;
                   }
@@ -164,7 +206,7 @@
         this.axios.get(`http://comento.cafe24.com/ads.php?page=1&limit=100`)
           .then(
             (response) => {
-                this.ads.push.apply(this.ads, response.data.list);
+              this.ads.push.apply(this.ads, response.data.list);
             }
           ).catch(
           (error) => console.log(error)
@@ -176,7 +218,7 @@
         }
       },
       adIdx(idx) {
-        if (((idx+1)/4) > this.ads.length) return parseInt((Math.random() * this.ads.length + 1));
+        if (((idx + 1) / 4) > this.ads.length) return parseInt((Math.random() * this.ads.length + 1));
         return (idx + 1) / 4;
       },
       ordering(order) {
@@ -212,105 +254,174 @@
 </script>
 
 <style scoped lang="less">
-@main-color: #00c854;
+  .container {
 
-.main-container {
-  width: 768px;
-  margin: 0 auto;
-}
-
-.main-header-container {
-  width: 100%;
-  padding: 20px 0px;
-}
-
-.main-header-wrapper {
-  display: flex;
-  justify-content: space-between;
-
-  .filter-button {
-    padding: 8px 45px;
-    background-color: #00c854;
-    font-size: 15px;
-    font-weight: 600;
-    color: #EEEEEE;
   }
 
-  .ordering-warpper {
-    display: flex;
+  .header {
+    margin: 30px 0px 30px 0px;
+
+    div {
+      height: 40px;
+    }
+
+    .filter-button {
+      text-align: center;
+      vertical-align: middle;
+      line-height: 40px;
+      background-color: #00c854;
+      font-weight: 600;
+      color: #ffffff;
+      border-radius: 1px;
+    }
 
     .ordering-item {
-      font-size: 15px;
-      padding: 8px 8px;
+      width: 50%;
+      display: inline-block;
+      text-align: end;
+      vertical-align: middle;
+      line-height: 42px;
     }
 
+    .selected {
+      font-weight: 700;
+      color: #00c854;
+    }
+
+    .under-line {
+      border-bottom: 2px solid #00c854;
+    }
   }
-}
 
-.main-content-container {
-  width: 100%;
-  font-size: 16px;
+  .contents {
 
-  .main-content-item {
-    border-top: 2px solid #222222;
-    border-right: 1px solid #dddddd;
-    border-bottom: 1px solid #dddddd;
-    border-left: 1px solid #dddddd;
-    margin: 0px 0px 8px 0px;
+    .content {
+      border: 1px solid #EEEEEE;
+      border-top: 2px solid #282929;
+      margin: 0px 0px 30px 0px;
+      padding: 0px;
+      border-radius: 2px;
 
-    .main-content-item-header {
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid #dddddd;
-      padding: 12px 0px;
-      margin: 0px 16px;
+      .content-category-wrapper {
 
-      .no {
-        font-size: 14px;
-        color: #444444;
-      }
-    }
-
-    .main-content-item-body {
-
-      .main-content-item-body-top {
-        display: flex;
-        padding: 24px 12px 20px 12px;
-
-        .email {
-          font-size: 15px;
-          color: #555555;
+        div {
+          height: 50px;
+          border-bottom: 1px solid #EEEEEE;
         }
 
-        .updated_at {
-          font-size: 15px;
-          color: #555555;
-        }
-
-      }
-
-      .main-content-item-body-bottom {
-        padding: 0px 12px 38px 12px;
-
-        .title {
-          font-weight: 700;
+        .category {
+          text-align: center;
+          vertical-align: middle;
+          line-height: 50px;
+          font-weight: 500;
           color: #00c854;
-          font-size: 20px;
-          margin: 0px 0px 5px;
         }
 
-        .contents {
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          overflow: hidden;
+        .card-no {
+          text-align: end;
+          vertical-align: middle;
+          line-height: 40px;
+          font-weight: 400;
+          color: #6e6e6e;
+        }
+      }
+
+      .content-info-wrapper {
+        height: 40px;
+        margin-bottom: 3px;
+
+        .email, .date {
+          font-size: 14px;
+          color: #878a8e;
+          text-align: end;
+          vertical-align: middle;
+          line-height: 40px;
+        }
+      }
+
+      .inner-content-wrapper {
+        margin-bottom: 40px;
+
+        .content-title {
+          font-size: 16px;
+          font-weight: 700;
+          margin-bottom: 5px;
+        }
+        .content-content {
+          font-size: 15px;
+          line-height: 1.6;
         }
       }
     }
 
-  }
-}
+    .ad {
+      border: 1px solid #e1e1e1;
+      margin: 0px 0px 30px 0px;
+      padding: 0px;
+      background-color: #fdfdfd;
+      border-radius: 2px;
 
-.selected {
-  color: #00c854;
-}
+      .adImage {
+        padding: 0px;
+      }
+
+      .sponcered {
+        height: 30px;
+        font-weight: 500;
+        color: #BBBBBB;
+        vertical-align: middle;
+        line-height: 30px;
+      }
+
+      .ad-content-wrapper {
+
+        .ad-title {
+          font-size: 15px;
+          font-weight: 700;
+          margin-bottom: 5px;
+        }
+
+        .ad-content {
+          font-size: 14px;
+          line-height: 1.6;
+        }
+
+      }
+
+    }
+
+  }
+
+    /* modal */
+    .modal-title {
+      margin-bottom: 40px;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .sweet-modal-overlay {
+      background-color: rgba(0, 0, 0, 0.75);
+    }
+
+    .modal-contents {
+      margin-bottom: 20px;
+    }
+
+    .checkbox {
+      margin-top: 0px;
+    }
+
+    .modal-button {
+      color: #fff;
+      background-color: #00c854;
+      border-color: #2e6da4;
+      border: 0px solid;
+      border-radius: 1px;
+      width: 100%;
+      height: 40px;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 40px;
+      margin-bottom: 25px;
+    }
 </style>

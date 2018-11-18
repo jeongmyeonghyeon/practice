@@ -1,6 +1,7 @@
 var path = require('path')
 var webpack = require('webpack')
 
+
 module.exports = {
   entry: './src/main.js',
   output: {
@@ -21,6 +22,7 @@ module.exports = {
         loader: 'vue-loader',
         options: {
           loaders: {
+            looader: 'babel-loader'
           }
           // other vue-loader options go here
         }
